@@ -1,0 +1,634 @@
+<style>
+    /* === WIKIJS-KOMPATIBLER QUINTENZIRKEL: Alle Stile auf .qz-app-Scope begrenzt === */
+    /* body-Stile werden auf den Wrapper .qz-app umgeleitet, um WikiJS-Layout nicht zu stören */
+
+    .qz-app {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .qz-app .main-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        width: 100%;
+        max-width: 1150px;
+    }
+
+    .qz-app .stationen-auswahl {
+        background: white;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        width: 100%;
+        box-sizing: border-box;
+        text-align: center;
+    }
+
+    .qz-app .reihen-titel {
+        font-size: 14px;
+        color: #555;
+        margin: 5px 0;
+        font-weight: bold;
+    }
+
+    .qz-app .button-row {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 5px;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        overflow-x: auto;
+        padding-bottom: 6px;
+    }
+
+    .qz-app .tonart-btn {
+        padding: 8px 6px;
+        font-size: 13px;
+        font-weight: bold;
+        background: white;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        flex: 1;
+        min-width: 52px;
+        white-space: nowrap;
+    }
+
+    .qz-app .tonart-btn.dur-btn { border-color: #5da947; color: #3d7a28; }
+    .qz-app .tonart-btn.moll-btn { border-color: #b9ddb0; color: #557c4c; }
+
+    .qz-app .tonart-btn.aktiv-dur {
+        background: #3d7a28 !important;
+        color: white !important;
+        border-color: #1b430f !important;
+    }
+    .qz-app .tonart-btn.aktiv-moll {
+        background: #7cb342 !important;
+        color: white !important;
+        border-color: #4b830d !important;
+    }
+
+    .qz-app .tonart-btn.zentrum-btn {
+        padding: 12px 12px;
+        font-size: 17px;
+        border-width: 3px;
+        margin: 0 4px;
+        flex: 1.4;
+    }
+
+    .qz-app .harmonie-board {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        width: 100%;
+        max-width: 950px;
+        box-sizing: border-box;
+        text-align: center;
+    }
+
+    .qz-app .stufen-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 15px;
+    }
+
+    .qz-app .stufe-box {
+        background: #f8f9fa;
+        border: 2px solid #eee;
+        border-radius: 6px;
+        padding: 12px;
+    }
+
+    .qz-app .stufe-box.hauptstufe { border-color: #5da947; background: #f0f7ee; }
+    .qz-app .stufe-box.nebenstufe { border-color: #a1cfa1; background: #fdfdfd; }
+    .qz-app .stufe-box.vermindert { border-color: #e57373; background: #ffebee; }
+
+    .qz-app .stufen-titel { font-size: 11px; color: #666; font-weight: bold; margin-bottom: 4px; }
+    .qz-app .stufen-wert { font-size: 18px; font-weight: bold; }
+
+    .qz-app .tipps-container {
+        margin-top: 25px;
+        border-top: 1px dashed #ddd;
+        padding-top: 20px;
+        text-align: left;
+    }
+
+    .qz-app .tipps-titel {
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    .qz-app .tipps-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .qz-app .tipp-karte {
+        background: #fafafa;
+        border-left: 4px solid #757575;
+        padding: 10px 14px;
+        border-radius: 0 8px 8px 0;
+    }
+
+    .qz-app .tipp-karte.klassisch { border-left-color: #5da947; background: #f9fbf9; }
+    .qz-app .tipp-karte.jazz      { border-left-color: #4a90e2; background: #f4f8fc; }
+    .qz-app .tipp-karte.pop       { border-left-color: #f5a623; background: #fffbf4; }
+    .qz-app .tipp-karte.modern    { border-left-color: #b8e986; background: #f7fbf2; }
+    .qz-app .tipp-karte.reggae    { border-left-color: #e6b800; background: #fffdf0; }
+    .qz-app .tipp-karte.epic      { border-left-color: #9013fe; background: #f9f2fc; }
+    .qz-app .tipp-karte.soul      { border-left-color: #ff5252; background: #fff2f2; }
+
+    .qz-app .tipp-stil { font-size: 12px; font-weight: bold; text-transform: uppercase; color: #666; margin-bottom: 2px; }
+    .qz-app .tipp-formel { font-size: 14px; font-weight: bold; color: #111; margin-bottom: 4px; }
+    .qz-app .tipp-progression { font-family: monospace; font-size: 14px; background: #eee; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 6px; font-weight: bold; }
+
+    .qz-app .theorie-box {
+        margin-top: 25px;
+        background: #fdfefe;
+        border: 1px solid #d1f2d1;
+        border-left: 5px solid #5da947;
+        border-radius: 6px;
+        padding: 15px;
+        text-align: left;
+    }
+
+    .qz-app .theorie-titel {
+        font-size: 14px;
+        font-weight: bold;
+        color: #27ae60;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+    }
+
+    .qz-app .theorie-formel-visual {
+        font-family: monospace;
+        font-weight: bold;
+        background: #eef7ee;
+        padding: 4px 10px;
+        border-radius: 4px;
+        display: inline-block;
+        margin: 8px 0;
+        color: #111;
+    }
+
+    .qz-app .mini-griff-flex {
+        display: flex;
+        gap: 10px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+    }
+
+    .qz-app .akkord-bibliothek {
+        width: 100%;
+        max-width: 950px;
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        box-sizing: border-box;
+        margin-top: 10px;
+    }
+
+    .qz-app .bib-titel { font-size: 18px; font-weight: bold; color: #2c3e50; text-align: center; }
+    .qz-app .bib-untertitel { font-size: 13px; color: #7f8c8d; text-align: center; margin-bottom: 20px; }
+
+    .qz-app .bib-grid { display: flex; flex-direction: column; gap: 12px; }
+
+    .qz-app .bib-zeile {
+        display: flex;
+        align-items: center;
+        background: #fdfefe;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .qz-app .bib-zeile.highlight-tonika    { border-left: 6px solid #3d7a28; background: #f4faf2; }
+    .qz-app .bib-zeile.highlight-vermindert{ border-left: 6px solid #e57373; background: #fff5f5; }
+    .qz-app .bib-zeile.normal-stufen       { border-left: 6px solid #a1cfa1; }
+
+    .qz-app .bib-akkord-name { font-size: 20px; font-weight: bold; min-width: 90px; color: #111; }
+    .qz-app .bib-akkord-rolle { font-size: 12px; color: #666; font-weight: bold; background: #eaeded; padding: 3px 8px; border-radius: 4px; }
+
+    .qz-app .bib-griff-container {
+        display: flex;
+        gap: 12px;
+        flex: 1;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .qz-app .bib-canvas-box {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 6px;
+        text-align: center;
+    }
+
+    .qz-app .bib-canvas-box span {
+        display: block;
+        font-size: 11px;
+        font-weight: bold;
+        color: #4a5568;
+        margin-bottom: 4px;
+    }
+
+    .qz-app canvas {
+        background: #fff;
+        border-radius: 4px;
+        display: block;
+    }
+</style>
+
+<!-- ================================================================
+     WIKIJS-KOMPATIBLER QUINTENZIRKEL HARMONIEFINDER
+     Geändert: Kein DOCTYPE/html/head/body - nur Inhalt als Fragment.
+     CSS auf .qz-app-Scope begrenzt. Initialisierung ohne window.onload.
+     ================================================================ -->
+
+<div class="qz-app">
+  <div class="main-container">
+    <h1>Quintenzirkel Harmoniefinder</h1>
+
+    <div class="stationen-auswahl">
+        <div class="reihen-titel">Äußerer Ring: DUR-Tonarten wählen</div>
+        <div class="button-row">
+            <button class="tonart-btn dur-btn" onclick="qzWaehleTonart('Ges', 'dur', this)">Ges</button>
+            <button class="tonart-btn dur-btn" onclick="qzWaehleTonart('Des', 'dur', this)">Des</button>
+            <button class="tonart-btn dur-btn" onclick="qzWaehleTonart('As', 'dur', this)">As</button>
+            <button class="tonart-btn dur-btn" onclick="qzWaehleTonart('Es', 'dur', this)">Es</button>
+            <button class="tonart-btn dur-btn" onclick="qzWaehleTonart('B', 'dur', this)">B</button>
+            <button class="tonart-btn dur-btn" onclick="qzWaehleTonart('F', 'dur', this)">F</button>
+            <button class="tonart-btn dur-btn zentrum-btn aktiv-dur" onclick="qzWaehleTonart('C', 'dur', this)">C (0)</button>
+            <button class="tonart-btn dur-btn" onclick="qzWaehleTonart('G', 'dur', this)">G</button>
+            <button class="tonart-btn dur-btn" onclick="qzWaehleTonart('D', 'dur', this)">D</button>
+            <button class="tonart-btn dur-btn" onclick="qzWaehleTonart('A', 'dur', this)">A</button>
+            <button class="tonart-btn dur-btn" onclick="qzWaehleTonart('E', 'dur', this)">E</button>
+            <button class="tonart-btn dur-btn" onclick="qzWaehleTonart('H', 'dur', this)">H</button>
+        </div>
+
+        <div class="reihen-titel">Innerer Ring: MOLL-Tonarten wählen</div>
+        <div class="button-row">
+            <button class="tonart-btn moll-btn" onclick="qzWaehleTonart('Ges', 'moll', this)">es</button>
+            <button class="tonart-btn moll-btn" onclick="qzWaehleTonart('Des', 'moll', this)">b</button>
+            <button class="tonart-btn moll-btn" onclick="qzWaehleTonart('As', 'moll', this)">f</button>
+            <button class="tonart-btn moll-btn" onclick="qzWaehleTonart('Es', 'moll', this)">c</button>
+            <button class="tonart-btn moll-btn" onclick="qzWaehleTonart('B', 'moll', this)">g</button>
+            <button class="tonart-btn moll-btn" onclick="qzWaehleTonart('F', 'moll', this)">d</button>
+            <button class="tonart-btn moll-btn zentrum-btn" onclick="qzWaehleTonart('C', 'moll', this)">a</button>
+            <button class="tonart-btn moll-btn" onclick="qzWaehleTonart('G', 'moll', this)">e</button>
+            <button class="tonart-btn moll-btn" onclick="qzWaehleTonart('D', 'moll', this)">h</button>
+            <button class="tonart-btn moll-btn" onclick="qzWaehleTonart('A', 'moll', this)">fis</button>
+            <button class="tonart-btn moll-btn" onclick="qzWaehleTonart('E', 'moll', this)">cis</button>
+            <button class="tonart-btn moll-btn" onclick="qzWaehleTonart('H', 'moll', this)">gis</button>
+        </div>
+    </div>
+
+    <div class="harmonie-board">
+        <h2 id="tonart-titel">Aktuelle Tonart: C-Dur</h2>
+        <div class="stufen-grid">
+            <div class="stufe-box hauptstufe"><div class="stufen-titel" id="lbl-links">IV</div><div class="stufen-wert" id="st-links">F</div></div>
+            <div class="stufe-box hauptstufe" style="background:#dcedc8;"><div class="stufen-titel" id="lbl-mitte">I</div><div class="stufen-wert" id="st-mitte">C</div></div>
+            <div class="stufe-box hauptstufe"><div class="stufen-titel" id="lbl-rechts">V</div><div class="stufen-wert" id="st-rechts">G</div></div>
+
+            <div class="stufe-box nebenstufe"><div class="stufen-titel" id="lbl-untenlinks">II</div><div class="stufen-wert" id="st-untenlinks">Dm</div></div>
+            <div class="stufe-box nebenstufe"><div class="stufen-titel" id="lbl-untenmitte">VI</div><div class="stufen-wert" id="st-untenmitte">Am</div></div>
+            <div class="stufe-box nebenstufe"><div class="stufen-titel" id="lbl-untenrechts">III</div><div class="stufen-wert" id="st-untenrechts">Em</div></div>
+
+            <div class="stufe-box vermindert" style="grid-column: span 3;">
+                <div class="stufen-titel" id="lbl-7">VII (Vermindert)</div>
+                <div class="stufen-wert" id="st-7">Hdim</div>
+            </div>
+        </div>
+
+        <div class="tipps-container">
+            <div class="tipps-titel">Typische Stufenabfolgen (Akkord-Formeln)</div>
+            <div class="tipps-grid">
+                <div class="tipp-karte klassisch">
+                    <div class="tipp-stil">Klassisch</div>
+                    <div class="tipp-formel" id="formel-klassisch">I – IV – V – I</div>
+                    <div class="tipp-progression" id="prog-klassisch">C - F - G - C</div>
+                    <div class="tipp-text">Das Fundament. Schafft ein klares, vollendetes Gefühl.</div>
+                </div>
+                <div class="tipp-karte jazz">
+                    <div class="tipp-stil">Jazz</div>
+                    <div class="tipp-formel" id="formel-jazz">II – V – I</div>
+                    <div class="tipp-progression" id="prog-jazz">Dm - G - C</div>
+                    <div class="tipp-text">Die wichtigste Wendung im Jazz. Klingt elegant und fließend.</div>
+                </div>
+                <div class="tipp-karte pop">
+                    <div class="tipp-stil">Pop</div>
+                    <div class="tipp-formel" id="formel-pop">I – V – VI – IV</div>
+                    <div class="tipp-progression" id="prog-pop">C - G - Am - F</div>
+                    <div class="tipp-text">Die ultimative "4-Chords"-Formel. Ein runder Loop ohne Ende.</div>
+                </div>
+                <div class="tipp-karte modern">
+                    <div class="tipp-stil">Moderner Pop</div>
+                    <div class="tipp-formel" id="formel-modern">VI – IV – I – V</div>
+                    <div class="tipp-progression" id="prog-modern">Am - F - C - G</div>
+                    <div class="tipp-text">Sehr beliebt im aktuellen Radio-Pop. Startet melancholisch auf Moll.</div>
+                </div>
+                <div class="tipp-karte reggae">
+                    <div class="tipp-stil">Reggae / Ska</div>
+                    <div class="tipp-formel" id="formel-reggae">I – IV – I – IV</div>
+                    <div class="tipp-progression" id="prog-reggae">C - F - C - F</div>
+                    <div class="tipp-text">Hypnotischer, minimalistischer Wechsel auf den Offbeats.</div>
+                </div>
+                <div class="tipp-karte epic">
+                    <div class="tipp-stil">Epic / Cinematic</div>
+                    <div class="tipp-formel" id="formel-epic">VI – IV – I – V</div>
+                    <div class="tipp-progression" id="prog-epic">Am - F - C - G</div>
+                    <div class="tipp-text">Die basis monumentaler Soundtracks. Klingt heroisch und bildgewaltig.</div>
+                </div>
+                <div class="tipp-karte soul">
+                    <div class="tipp-stil">Neo-Soul / R&amp;B</div>
+                    <div class="tipp-formel" id="formel-soul">I – VI – II – V</div>
+                    <div class="tipp-progression" id="prog-soul">C - Am - Dm - G</div>
+                    <div class="tipp-text">Entspannter, warmer Bar-Vibe. Im Original gern mit Septimen verfeinert.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="theorie-box">
+            <div class="theorie-titel" id="theorie-ueberschrift">💡 Musiktheorie: Chromatische Brücke</div>
+            <div class="theorie-text" id="theorie-beschreibung">Nutze den chromatisch verminderten Akkord als Übergang.</div>
+            <div class="theorie-formel-visual" id="theorie-route">Weg: C → C#dim → Dm</div>
+
+            <div class="mini-griff-flex" style="justify-content: center;">
+                <div class="bib-canvas-box">
+                    <span>🎸 Fokus-Akkord (Gitarre)</span>
+                    <canvas id="focus-guitar-canvas" width="140" height="140"></canvas>
+                </div>
+                <div class="bib-canvas-box">
+                    <span>🎹 Fokus-Akkord (Klavier)</span>
+                    <canvas id="focus-piano-canvas" width="240" height="90"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="akkord-bibliothek">
+        <div class="bib-titel">Live-generierte Akkord-Griffbilder (Voll-Engine)</div>
+        <div class="bib-untertitel">Reihenfolge: Tonika → Alle Begleitstufen → Alle verminderten Akkorde</div>
+        <div class="bib-grid" id="dynamische-akkord-liste"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================================================================
+// JAVASCRIPT-ENGINE (unverändert, nur Funktionsnamen auf qz-Prefix
+// umgestellt und Initialisierung ohne window.onload)
+// ================================================================
+
+const qzZirkelDaten = {
+    'C':   { dur: {st:{I:'C',  IV:'F',   V:'G',   II:'Dm',  VI:'Am',  III:'Em',  VII:'Hdim'}},   moll:{st:{I:'Am', IV:'Dm',  V:'Em',  III:'C',  VI:'F',   VII:'G',   II:'Hdim'}}},
+    'G':   { dur: {st:{I:'G',  IV:'C',   V:'D',   II:'Am',  VI:'Em',  III:'Hm',  VII:'F#dim'}},  moll:{st:{I:'Em', IV:'Am',  V:'Hm',  III:'G',  VI:'C',   VII:'D',   II:'F#dim'}}},
+    'D':   { dur: {st:{I:'D',  IV:'G',   V:'A',   II:'Em',  VI:'Hm',  III:'F#m', VII:'C#dim'}},  moll:{st:{I:'Hm', IV:'Em',  V:'F#m', III:'D',  VI:'G',   VII:'A',   II:'C#dim'}}},
+    'A':   { dur: {st:{I:'A',  IV:'D',   V:'E',   II:'Hm',  VI:'F#m', III:'C#m', VII:'G#dim'}},  moll:{st:{I:'F#m',IV:'Hm',  V:'C#m', III:'A',  VI:'D',   VII:'E',   II:'G#dim'}}},
+    'E':   { dur: {st:{I:'E',  IV:'A',   V:'H',   II:'F#m', VI:'C#m', III:'G#m', VII:'D#dim'}},  moll:{st:{I:'C#m',IV:'F#m', V:'G#m', III:'E',  VI:'A',   VII:'H',   II:'D#dim'}}},
+    'H':   { dur: {st:{I:'H',  IV:'E',   V:'F#',  II:'C#m', VI:'G#m', III:'D#m', VII:'A#dim'}},  moll:{st:{I:'G#m',IV:'C#m', V:'D#m', III:'H',  VI:'E',   VII:'F#',  II:'A#dim'}}},
+    'Ges': { dur: {st:{I:'Ges',IV:'Ces',V:'Des',II:'Esm',VI:'Bm',  III:'Fm',  VII:'Fdim'}},   moll:{st:{I:'Esm',IV:'Bm', V:'Fm',  III:'Ges',VI:'Ces', VII:'Des', II:'Fdim'}}},
+    'Des': { dur: {st:{I:'Des',IV:'Ges', V:'As',  II:'Bm',  VI:'Fm',  III:'Cm',  VII:'Cdim'}},   moll:{st:{I:'Bm', IV:'Fm',  V:'Cm',  III:'Des',VI:'Ges', VII:'As',  II:'Cdim'}}},
+    'As':  { dur: {st:{I:'As', IV:'Des', V:'Es',  II:'Fm',  VI:'Cm',  III:'Gm',  VII:'Gdim'}},   moll:{st:{I:'Fm', IV:'Cm',  V:'Gm',  III:'As', VI:'Des', VII:'Es',  II:'Gdim'}}},
+    'Es':  { dur: {st:{I:'Es', IV:'As',  V:'B',   II:'Cm',  VI:'Gm',  III:'Dm',  VII:'Ddim'}},   moll:{st:{I:'Cm', IV:'Gm',  V:'Dm',  III:'Es', VI:'As',  VII:'B',   II:'Ddim'}}},
+    'B':   { dur: {st:{I:'B',  IV:'Es',  V:'F',   II:'Cm',  VI:'Dm',  III:'Am',  VII:'Adim'}},   moll:{st:{I:'Gm', IV:'Cm',  V:'Am',  III:'B',  VI:'Es',  VII:'F',   II:'Adim'}}},
+    'F':   { dur: {st:{I:'F',  IV:'B',   V:'C',   II:'Gm',  VI:'Am',  III:'Dm',  VII:'Edim'}},   moll:{st:{I:'Dm', IV:'Gm',  V:'Am',  III:'F',  VI:'B',   VII:'C',   II:'Edim'}}}
+};
+
+const qzNotenOffsets = {
+    'C':0, 'C#':1, 'Db':1, 'Des':1, 'D':2, 'D#':3, 'Es':3, 'E':4, 'F':5,
+    'F#':6, 'Ges':6, 'G':7, 'G#':8, 'As':8, 'A':9, 'A#':10, 'B':10,
+    'H':11, 'Ces':11, 'Cdim':0, 'Hdim':11
+};
+
+const qzAkkordFormelProfile = {
+    'dur':  { keys: [0, 4, 7], git: [{s:0,b:0},{s:-1,b:2},{s:-2,b:2},{s:-3,b:1}] },
+    'moll': { keys: [0, 3, 7], git: [{s:0,b:0},{s:-1,b:2},{s:-2,b:2},{s:-3,b:0}] },
+    'dim':  { keys: [0, 3, 6], git: [{s:0,b:0},{s:-1,b:1},{s:-2,b:2},{s:-3,b:1}] }
+};
+
+function qzExtrahiereAkkordStruktur(name) {
+    let grundton = name.replace('m','').replace('dim','');
+    let typ = 'dur';
+    if (name.includes('dim')) typ = 'dim';
+    else if (name.includes('m')) typ = 'moll';
+    return { grundton, typ };
+}
+
+function qzWaehleTonart(achse, modus, btn) {
+    const segment = qzZirkelDaten[achse];
+    const daten = segment[modus];
+    if (!daten) return;
+
+    document.getElementById('tonart-titel').innerText =
+        "Gewählte Tonart: " + (modus==='dur' ? achse+'-Dur' : achse.toLowerCase()+'-Moll');
+
+    document.getElementById('st-links').innerText      = daten.st.IV;
+    document.getElementById('st-mitte').innerText      = daten.st.I;
+    document.getElementById('st-rechts').innerText     = daten.st.V;
+    document.getElementById('st-untenlinks').innerText = daten.st.II;
+    document.getElementById('st-untenmitte').innerText = daten.st.VI;
+    document.getElementById('st-untenrechts').innerText= daten.st.III;
+
+    let passingChord = "";
+    let zielAkkord   = "";
+
+    if (modus === 'dur') {
+        document.getElementById('st-7').innerText           = daten.st.VII;
+        document.getElementById('prog-klassisch').innerText = daten.st.I  + " - " + daten.st.IV + " - " + daten.st.V  + " - " + daten.st.I;
+        document.getElementById('prog-jazz').innerText      = daten.st.II + " - " + daten.st.V  + " - " + daten.st.I;
+        document.getElementById('prog-pop').innerText       = daten.st.I  + " - " + daten.st.V  + " - " + daten.st.VI + " - " + daten.st.IV;
+        document.getElementById('prog-modern').innerText    = daten.st.VI + " - " + daten.st.IV + " - " + daten.st.I  + " - " + daten.st.V;
+        passingChord = daten.st.I.substring(0,1) + (daten.st.I.includes('b') ? '' : '#') + "dim";
+        zielAkkord   = daten.st.II;
+    } else {
+        document.getElementById('st-7').innerText           = daten.st.II;
+        document.getElementById('prog-klassisch').innerText = daten.st.I  + " - " + daten.st.IV + " - " + daten.st.V  + " - " + daten.st.I;
+        document.getElementById('prog-jazz').innerText      = daten.st.II + " - " + daten.st.V  + " - " + daten.st.I;
+        document.getElementById('prog-pop').innerText       = daten.st.I  + " - " + daten.st.VII+ " - " + daten.st.VI + " - " + daten.st.VII;
+        document.getElementById('prog-modern').innerText    = daten.st.I  + " - " + daten.st.VI + " - " + daten.st.III+ " - " + daten.st.VII;
+        passingChord = daten.st.IV.replace('m','').substring(0,1) + (daten.st.IV.includes('b') ? '' : '#') + "dim";
+        zielAkkord   = daten.st.V;
+    }
+
+    document.getElementById('theorie-route').innerText =
+        "Weg: " + (modus==='dur' ? daten.st.I : daten.st.IV) + " → " + passingChord + " → " + zielAkkord;
+
+    qzZeichneGitarre("focus-guitar-canvas", passingChord);
+    qzZeichneKlavier("focus-piano-canvas",  passingChord);
+    qzBaueAkkordBibliothek(daten, modus, passingChord);
+
+    document.querySelectorAll('.tonart-btn').forEach(b => b.classList.remove('aktiv-dur','aktiv-moll'));
+    btn.classList.add(modus === 'dur' ? 'aktiv-dur' : 'aktiv-moll');
+}
+
+function qzBaueAkkordBibliothek(daten, modus, passingChord) {
+    const container = document.getElementById('dynamische-akkord-liste');
+    container.innerHTML = "";
+    let reihenfolge = [];
+
+    if (modus === 'dur') {
+        reihenfolge = [
+            { name: daten.st.I,    rolle: "I - Tonika (Basis)",           typ: "highlight-tonika" },
+            { name: daten.st.IV,   rolle: "IV - Subdominante",            typ: "normal-stufen" },
+            { name: daten.st.V,    rolle: "V - Dominante",                typ: "normal-stufen" },
+            { name: daten.st.II,   rolle: "II - Moll-Parallelstufe",      typ: "normal-stufen" },
+            { name: daten.st.VI,   rolle: "VI - Moll-Parallele",          typ: "normal-stufen" },
+            { name: daten.st.III,  rolle: "III - Moll-Gegenparallele",    typ: "normal-stufen" },
+            { name: passingChord,  rolle: "Chromatischer Brücken-Akkord", typ: "highlight-vermindert" },
+            { name: daten.st.VII,  rolle: "VII - Verminderter Leitton",   typ: "highlight-vermindert" }
+        ];
+    } else {
+        reihenfolge = [
+            { name: daten.st.I,    rolle: "i - Moll-Tonika (Basis)",      typ: "highlight-tonika" },
+            { name: daten.st.IV,   rolle: "iv - Moll-Subdominante",       typ: "normal-stufen" },
+            { name: daten.st.V,    rolle: "v - Moll-Dominante",           typ: "normal-stufen" },
+            { name: daten.st.III,  rolle: "III - Dur-Paralleltonart",     typ: "normal-stufen" },
+            { name: daten.st.VI,   rolle: "VI - Dur-Subdominante",        typ: "normal-stufen" },
+            { name: daten.st.VII,  rolle: "VII - Subtonika",              typ: "normal-stufen" },
+            { name: passingChord,  rolle: "Chromatischer Brücken-Akkord", typ: "highlight-vermindert" },
+            { name: daten.st.II,   rolle: "ii - Verminderte Stufe",       typ: "highlight-vermindert" }
+        ];
+    }
+
+    reihenfolge.forEach((akkord, index) => {
+        const gitCanvasId = `qz-git-canvas-${index}`;
+        const keyCanvasId = `qz-key-canvas-${index}`;
+        const zeile = document.createElement('div');
+        zeile.className = `bib-zeile ${akkord.typ}`;
+        zeile.innerHTML = `
+            <div class="bib-akkord-name">${akkord.name}</div>
+            <div class="bib-akkord-rolle">${akkord.rolle}</div>
+            <div class="bib-griff-container">
+                <div class="bib-canvas-box">
+                    <span>🎸 Gitarren-Tab</span>
+                    <canvas id="${gitCanvasId}" width="130" height="110"></canvas>
+                </div>
+                <div class="bib-canvas-box">
+                    <span>🎹 Klavier-Griff</span>
+                    <canvas id="${keyCanvasId}" width="190" height="75"></canvas>
+                </div>
+            </div>`;
+        container.appendChild(zeile);
+        qzZeichneGitarre(gitCanvasId, akkord.name);
+        qzZeichneKlavier(keyCanvasId,  akkord.name);
+    });
+}
+
+function qzZeichneGitarre(canvasId, akkordName) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const startX=25, startY=20, breite=80, hoehe=70;
+    const saitenAnzahl=6, bundeAnzahl=4;
+    const saitenAbstand = breite / (saitenAnzahl - 1);
+    const bundAbstand   = hoehe  / bundeAnzahl;
+
+    ctx.strokeStyle = '#a0aec0';
+    ctx.lineWidth = 1;
+    for (let i=0; i<=bundeAnzahl; i++) {
+        let y = startY + (i * bundAbstand);
+        ctx.beginPath(); ctx.moveTo(startX, y); ctx.lineTo(startX+breite, y); ctx.stroke();
+        if (i===0) { ctx.lineWidth=3; ctx.stroke(); ctx.lineWidth=1; }
+    }
+    for (let i=0; i<saitenAnzahl; i++) {
+        let x = startX + (i * saitenAbstand);
+        ctx.beginPath(); ctx.moveTo(x, startY); ctx.lineTo(x, startY+hoehe); ctx.stroke();
+    }
+
+    const info = qzExtrahiereAkkordStruktur(akkordName);
+    let basisOffset = (qzNotenOffsets[info.grundton] || 0) % 3;
+    if (basisOffset===0) basisOffset=1;
+    let fingerPunkte = [];
+    if      (info.typ==='dur')  fingerPunkte=[{s:5,b:basisOffset+2},{s:4,b:basisOffset+1},{s:2,b:basisOffset}];
+    else if (info.typ==='moll') fingerPunkte=[{s:4,b:basisOffset+1},{s:3,b:basisOffset+1},{s:2,b:basisOffset}];
+    else                        fingerPunkte=[{s:5,b:basisOffset},{s:4,b:basisOffset+1},{s:3,b:basisOffset+2},{s:2,b:basisOffset+1}];
+
+    fingerPunkte.forEach(f => {
+        let x = startX + ((6-f.s) * saitenAbstand);
+        let rel = f.b > 4 ? ((f.b-1)%4)+1 : f.b;
+        let y = startY + ((rel - 0.5) * bundAbstand);
+        ctx.fillStyle = info.typ==='dim' ? '#e57373' : '#3d7a28';
+        ctx.beginPath(); ctx.arc(x, y, 5.5, 0, Math.PI*2); ctx.fill();
+    });
+
+    ctx.fillStyle="#4a5568"; ctx.font="bold 10px Arial";
+    ctx.fillText(akkordName, startX, startY+hoehe+14);
+}
+
+function qzZeichneKlavier(canvasId, akkordName) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const weisseTasten=12;
+    const tastenBreite = canvas.width / weisseTasten;
+    const tastenHoehe  = canvas.height;
+
+    ctx.strokeStyle='#cbd5e0'; ctx.fillStyle='#ffffff';
+    for (let i=0; i<weisseTasten; i++) {
+        ctx.fillRect(i*tastenBreite, 0, tastenBreite, tastenHoehe);
+        ctx.strokeRect(i*tastenBreite, 0, tastenBreite, tastenHoehe);
+    }
+
+    ctx.fillStyle='#2d3748';
+    const schwarzePattern=[true,true,false,true,true,true,false,true,true,false,true,true];
+    for (let i=0; i<schwarzePattern.length; i++) {
+        if (schwarzePattern[i]) {
+            let x = (i+1)*tastenBreite - (tastenBreite*0.3);
+            ctx.fillRect(x, 0, tastenBreite*0.6, tastenHoehe*0.55);
+        }
+    }
+
+    const info = qzExtrahiereAkkordStruktur(akkordName);
+    const startHalbton = qzNotenOffsets[info.grundton] || 0;
+    const profile      = qzAkkordFormelProfile[info.typ];
+
+    profile.keys.forEach(intervall => {
+        let abs = (startHalbton + intervall) % 12;
+        let mapping=[0,0.5,1,1.5,2,3,3.5,4,4.5,5,5.5,6];
+        let x = (mapping[abs] + 0.5) * tastenBreite;
+        let y = tastenHoehe * 0.75;
+        if ([1,3,6,8,10].includes(abs)) {
+            y = tastenHoehe * 0.35;
+            ctx.fillStyle = '#ff8a80';
+        } else {
+            ctx.fillStyle = info.typ==='dim' ? '#e57373' : '#7cb342';
+        }
+        ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI*2); ctx.fill();
+    });
+}
+
+// ================================================================
+// INITIALISIERUNG: Kein window.onload (funktioniert nicht zuverlässig
+// im WikiJS SPA-Kontext). Stattdessen: direkte Ausführung am
+// Script-Ende via setTimeout(0) – DOM ist zu diesem Zeitpunkt bereit.
+// ================================================================
+setTimeout(function() {
+    const defaultBtn = document.querySelector('.zentrum-btn.aktiv-dur');
+    if (defaultBtn) {
+        qzWaehleTonart('C', 'dur', defaultBtn);
+    }
+}, 0);
+</script>
